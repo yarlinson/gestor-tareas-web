@@ -1,26 +1,289 @@
 @import "tailwindcss";
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/*
+ * Identidad visual: la hoja de contabilidad.
+ * Papel verde claro, tinta verde-negra y dos tintas de bolígrafo: roja para lo que está
+ * atrasado (en contabilidad, lo negativo) y azul para lo hecho, los enlaces y el foco.
+ */
 :root {
-  color-scheme: light dark;
+  --papel: #edf2e8; /* fondo de la página */
+  --hoja: #f7f9f3; /* formularios, menús y diálogos */
+  --regla: #c3d3bf; /* líneas finas entre filas */
+  --regla-fuerte: #6f917a; /* encabezados de columna, dobles rayas, bordes de campo */
+  --tinta: #15261c;
+  --tinta-suave: #4a6252; /* texto secundario: 5,7:1 sobre el papel */
+  --tinta-roja: #b3261e;
+  --tinta-azul: #2748a0;
 }
 
-body {
-  font-family: var(--font-sans), system-ui, sans-serif;
+/* "Tinta nocturna": el mismo libro a la luz de una lámpara. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papel: #0e1812;
+    --hoja: #14221a;
+    --regla: #2a4033;
+    --regla-fuerte: #5f8a70;
+    --tinta: #dde9db;
+    --tinta-suave: #9fb8a6;
+    --tinta-roja: #ff8f84;
+    --tinta-azul: #94b3ff;
+  }
 }
 
-/* El diálogo nativo (<dialog>) centra y oscurece el fondo; solo se afina el aspecto. */
-dialog::backdrop {
-  background: rgb(15 23 42 / 0.55);
-  backdrop-filter: blur(2px);
+@theme inline {
+  --color-papel: var(--papel);
+  --color-hoja: var(--hoja);
+  --color-regla: var(--regla);
+  --color-regla-fuerte: var(--regla-fuerte);
+  --color-tinta: var(--tinta);
+  --color-tinta-suave: var(--tinta-suave);
+  --color-tinta-roja: var(--tinta-roja);
+  --color-tinta-azul: var(--tinta-azul);
+  --font-display: var(--font-condensada), "Arial Narrow", sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    background: var(--papel);
+    color: var(--tinta);
+    font-family: var(--font-texto), Georgia, serif;
+    font-size: 1.0625rem;
+    line-height: 1.55; /* una serif pide más interlínea que una sans */
+    font-variant-numeric: lining-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-condensada), "Arial Narrow", sans-serif;
+    letter-spacing: 0.01em;
+  }
+
+  ::selection {
+    background: var(--tinta-azul);
+    color: var(--papel);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--tinta-azul);
+    outline-offset: 2px;
+  }
+
+  select option {
+    background: var(--hoja);
+    color: var(--tinta);
+  }
+
+  /* El velo detrás de un diálogo siempre oscurece; no puede usar --tinta, que en modo oscuro es clara. */
+  dialog::backdrop {
+    background: rgb(21 38 28 / 0.5);
+  }
+  @media (prefers-color-scheme: dark) {
+    dialog::backdrop {
+      background: rgb(0 0 0 / 0.65);
+    }
+  }
+}
+
+@layer components {
+  /* Doble raya, como la de los totales de un libro contable. */
+  .regla-doble {
+    border-top: 4px double var(--regla-fuerte);
+  }
+
+  /* Hoja rayada de fondo para la pantalla de acceso: líneas finas, sin competir con el texto. */
+  .fondo-rayado {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 1.9rem,
+      color-mix(in srgb, var(--regla) 75%, transparent) 1.9rem,
+      color-mix(in srgb, var(--regla) 75%, transparent) calc(1.9rem + 1px)
+    );
+  }
+
+  /* Campos: una línea de escribir, no una caja. */
+  .campo {
+    width: 100%;
+    padding: 0.55rem 0.15rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    border: 0;
+    border-bottom: 1.5px solid var(--regla-fuerte);
+    border-radius: 0;
+  }
+  .campo::placeholder {
+    color: var(--tinta-suave);
+    opacity: 0.85;
+  }
+  .campo:focus {
+    outline: none;
+    border-bottom-color: var(--tinta-azul);
+    box-shadow: 0 1px 0 0 var(--tinta-azul);
+  }
+  .campo:disabled {
+    opacity: 0.6;
+  }
+  .campo-auto {
+    width: auto;
+  }
+
+  /* Para textos largos, que necesitan un recuadro donde verse. */
+  .campo-caja {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    background: var(--hoja);
+    color: inherit;
+    font: inherit;
+    border: 1.5px solid var(--regla-fuerte);
+    border-radius: 2px;
+  }
+  .campo-caja:focus {
+    outline: none;
+    border-color: var(--tinta-azul);
+    box-shadow: 0 0 0 1px var(--tinta-azul);
+  }
+
+  /* Botones: letra condensada, esquinas casi rectas, sin sombra. */
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.15rem;
+    font-family: var(--font-condensada), "Arial Narrow", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    border: 1.5px solid var(--tinta);
+    border-radius: 2px;
+    cursor: pointer;
+    transition:
+      background-color 0.15s,
+      color 0.15s,
+      border-color 0.15s;
+  }
+  .boton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .boton-tinta {
+    background: var(--tinta);
+    color: var(--papel);
+  }
+  .boton-tinta:hover:not(:disabled) {
+    background: var(--tinta-azul);
+    border-color: var(--tinta-azul);
+  }
+  .boton-regla {
+    background: transparent;
+    color: var(--tinta);
+  }
+  .boton-regla:hover:not(:disabled) {
+    background: var(--tinta);
+    color: var(--papel);
+  }
+  .boton-roja {
+    background: var(--tinta-roja);
+    border-color: var(--tinta-roja);
+    color: var(--papel);
+  }
+  .boton-roja:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+  .boton-texto {
+    padding-inline: 0.5rem;
+    background: transparent;
+    border-color: transparent;
+    color: var(--tinta-suave);
+  }
+  .boton-texto:hover:not(:disabled) {
+    color: var(--tinta);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .boton-pequeno {
+    padding: 0.35rem 0.8rem;
+    font-size: 1.02rem;
+  }
+
+  /* Casilla de verificación: cuadro con borde y una marca azul que sobresale, como hecha a mano. */
+  .casilla {
+    appearance: none;
+    position: relative;
+    display: inline-grid;
+    flex-shrink: 0;
+    place-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    background: var(--hoja);
+    border: 1.5px solid var(--tinta);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .casilla:checked {
+    border-color: var(--tinta-azul);
+  }
+  .casilla::after {
+    content: "";
+    /* Tamaño fijo y centrado con márgenes: un porcentaje dentro de una rejilla sin pistas daba 0. */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--marca, 1.95rem);
+    height: var(--marca, 1.95rem);
+    margin: calc(var(--marca, 1.95rem) / -2) 0 0 calc(var(--marca, 1.95rem) / -2);
+    background: var(--tinta-azul);
+    transform: scale(0);
+    transform-origin: 30% 70%;
+    transition: transform 0.18s ease-out;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3.5 13.5 9 19 21 4.5' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3.5 13.5 9 19 21 4.5' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  .casilla:checked::after {
+    transform: scale(1);
+  }
+  .casilla-roja {
+    --marca: 1.5rem;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  .casilla-roja:checked {
+    border-color: var(--tinta-roja);
+  }
+  .casilla-roja::after {
+    background: var(--tinta-roja);
+  }
+
+  /*
+   * Título tachado: al marcar una tarea como hecha, una línea de bolígrafo azul recorre el texto
+   * de izquierda a derecha. Es la única animación de la página y responde a una acción.
+   */
+  .tachado {
+    background-image: linear-gradient(var(--tinta-azul), var(--tinta-azul));
+    background-repeat: no-repeat;
+    background-position: 0 58%;
+    background-size: 0% 2px;
+    transition: background-size 0.35s ease-out;
+  }
+  .tachado[data-hecha="true"] {
+    background-size: 100% 2px;
+    color: var(--tinta-suave);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }

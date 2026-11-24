@@ -37,22 +37,20 @@ export function TagInput({ valor, onChange, sugerencias }: Propiedades) {
   return (
     <div>
       {valor.length > 0 && (
-        <ul className="mb-2 flex flex-wrap gap-1.5">
+        <ul className="mb-1 flex flex-wrap gap-2">
           {valor.map((etiqueta) => (
             <li
               key={etiqueta}
-              className="inline-flex items-center gap-1 rounded-full bg-indigo-50 py-0.5 pl-2.5 pr-1 text-xs font-medium text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
+              className="inline-flex items-center gap-1 border border-regla-fuerte bg-hoja py-0.5 pl-2 pr-1 font-display text-[1.05rem] font-semibold text-tinta-azul"
             >
-              {etiqueta}
+              #{etiqueta}
               <button
                 type="button"
                 onClick={() => onChange(valor.filter((e) => e !== etiqueta))}
                 aria-label={`Quitar la etiqueta ${etiqueta}`}
-                className="rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-500/30"
+                className="px-1 text-xl leading-none text-tinta-suave hover:text-tinta-roja"
               >
-                <svg viewBox="0 0 20 20" className="h-3 w-3" fill="currentColor" aria-hidden="true">
-                  <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-                </svg>
+                ×
               </button>
             </li>
           ))}
@@ -84,7 +82,7 @@ export function TagInput({ valor, onChange, sugerencias }: Propiedades) {
             <option key={sugerencia} value={sugerencia} />
           ))}
       </datalist>
-      <p className="mt-1 text-xs text-slate-500">
+      <p className="mt-1 text-sm text-tinta-suave">
         Hasta {MAXIMO_DE_ETIQUETAS} etiquetas de {LARGO_MAXIMO} caracteres como máximo.
       </p>
     </div>

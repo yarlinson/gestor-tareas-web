@@ -4,12 +4,24 @@ import { useEffect, useId, useState, type FormEvent } from "react";
 import { API_URL, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { sesion } from "@/lib/session";
+import { Marca } from "./marca";
+import { PlazoVisual } from "./plazo";
+import { NivelDePrioridad } from "./prioridad";
 import { Alerta, CAMPO, Spinner, boton } from "./ui";
 
 type Modo = "entrar" | "crear";
 
 const PATRON_DE_USUARIO = /^[A-Za-z0-9_.-]{3,50}$/;
 const PATRON_DE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const ETIQUETA_DE_CAMPO = "mb-0.5 block font-display text-[1.1rem] font-semibold text-tinta-suave";
+
+/** Tres líneas de ejemplo: enseñan a leer la columna de plazos antes de tener tareas propias. */
+const EJEMPLO = [
+  { numero: "1", etiqueta: "día", titulo: "Entregar el informe", prioridad: "ALTA", atraso: false },
+  { numero: "6", etiqueta: "días", titulo: "Pagar la matrícula", prioridad: "MEDIA", atraso: false },
+  { numero: "(2)", etiqueta: "de atraso", titulo: "Renovar el seguro", prioridad: "BAJA", atraso: true },
+] as const;
 
 export function AuthForm() {
   const { iniciarSesion, registrar } = useAuth();
@@ -91,22 +103,43 @@ export function AuthForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M5 12.5 10 17.5 19 7.5" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Gestor de Tareas</h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Organiza tus pendientes con prioridades, etiquetas y avisos de vencimiento.
+    <div className="fondo-rayado min-h-screen">
+      <div className="mx-auto grid min-h-screen max-w-5xl items-center gap-x-16 gap-y-10 px-6 py-12 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+        <div>
+          <Marca className="h-12 w-12" />
+          <h1 className="mt-4 font-display text-[3.6rem] font-bold leading-[0.95] md:text-[4.8rem]">
+            Gestor de Tareas
+          </h1>
+          <p className="mt-4 max-w-md text-[1.15rem] text-tinta-suave">
+            Cada tarea con su plazo, su prioridad y sus etiquetas. La campana te avisa cuando una
+            está por vencer.
           </p>
+
+          <figure className="mt-9 hidden max-w-md md:block">
+            <div aria-hidden="true" className="border-t-2 border-regla-fuerte bg-papel">
+              {EJEMPLO.map((fila) => (
+                <div
+                  key={fila.titulo}
+                  className="grid grid-cols-[4.4rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b border-regla py-3"
+                >
+                  <PlazoVisual numero={fila.numero} etiqueta={fila.etiqueta} atraso={fila.atraso} />
+                  <span className="text-[1.1rem] font-semibold">{fila.titulo}</span>
+                  <NivelDePrioridad prioridad={fila.prioridad} />
+                </div>
+              ))}
+            </div>
+            <figcaption className="mt-2 text-[0.95rem] text-tinta-suave">
+              Ejemplo: el número grande son los días que faltan; en rojo y entre paréntesis, los
+              días de atraso.
+            </figcaption>
+          </figure>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-5 grid grid-cols-2 rounded-lg bg-slate-100 p-1 text-sm font-medium dark:bg-slate-800" role="tablist">
+        <div className="border-[1.5px] border-tinta bg-hoja px-7 pb-7 pt-6 shadow-[6px_6px_0_0_var(--regla-fuerte)]">
+          <div
+            role="tablist"
+            className="mb-6 flex gap-6 border-b border-regla font-display text-[1.4rem] font-semibold"
+          >
             {(["entrar", "crear"] as const).map((valor) => (
               <button
                 key={valor}
@@ -114,10 +147,10 @@ export function AuthForm() {
                 role="tab"
                 aria-selected={modo === valor}
                 onClick={() => cambiarModo(valor)}
-                className={`rounded-md px-3 py-1.5 transition ${
+                className={`-mb-px border-b-[3px] pb-1.5 transition-colors ${
                   modo === valor
-                    ? "bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100"
-                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                    ? "border-tinta"
+                    : "border-transparent text-tinta-suave hover:text-tinta"
                 }`}
               >
                 {valor === "entrar" ? "Iniciar sesión" : "Crear cuenta"}
@@ -125,11 +158,11 @@ export function AuthForm() {
             ))}
           </div>
 
-          <form onSubmit={enviar} noValidate className="space-y-4">
+          <form onSubmit={enviar} noValidate className="space-y-5">
             {motivoDelCierre && <Alerta tipo="aviso">{motivoDelCierre}</Alerta>}
 
             <div>
-              <label htmlFor={idUsuario} className="mb-1 block text-sm font-medium">
+              <label htmlFor={idUsuario} className={ETIQUETA_DE_CAMPO}>
                 Nombre de usuario
               </label>
               <input
@@ -143,13 +176,13 @@ export function AuthForm() {
                 disabled={enviando}
               />
               {errores.nombreUsuario && (
-                <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errores.nombreUsuario}</p>
+                <p className="mt-1 text-sm text-tinta-roja">{errores.nombreUsuario}</p>
               )}
             </div>
 
             {modo === "crear" && (
               <div>
-                <label htmlFor={idCorreo} className="mb-1 block text-sm font-medium">
+                <label htmlFor={idCorreo} className={ETIQUETA_DE_CAMPO}>
                   Correo electrónico
                 </label>
                 <input
@@ -162,14 +195,12 @@ export function AuthForm() {
                   aria-invalid={Boolean(errores.email)}
                   disabled={enviando}
                 />
-                {errores.email && (
-                  <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errores.email}</p>
-                )}
+                {errores.email && <p className="mt-1 text-sm text-tinta-roja">{errores.email}</p>}
               </div>
             )}
 
             <div>
-              <label htmlFor={idClave} className="mb-1 block text-sm font-medium">
+              <label htmlFor={idClave} className={ETIQUETA_DE_CAMPO}>
                 Contraseña
               </label>
               <input
@@ -183,13 +214,13 @@ export function AuthForm() {
                 disabled={enviando}
               />
               {errores.password && (
-                <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errores.password}</p>
+                <p className="mt-1 text-sm text-tinta-roja">{errores.password}</p>
               )}
             </div>
 
             {errorGeneral && <Alerta>{errorGeneral}</Alerta>}
 
-            <button type="submit" className={`${boton()} w-full`} disabled={enviando}>
+            <button type="submit" className={`${boton("primario")} w-full`} disabled={enviando}>
               {enviando && <Spinner />}
               {modo === "entrar" ? "Entrar" : "Crear cuenta"}
             </button>
@@ -201,11 +232,11 @@ export function AuthForm() {
               </Alerta>
             )}
           </form>
-        </div>
 
-        <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-500">
-          Demo pública: no guardes datos reales. Cliente web de una API REST en Spring Boot.
-        </p>
+          <p className="mt-6 text-[0.9rem] text-tinta-suave">
+            Demo pública: no guardes datos reales.
+          </p>
+        </div>
       </div>
     </div>
   );

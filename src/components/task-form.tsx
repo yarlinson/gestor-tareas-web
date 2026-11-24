@@ -6,7 +6,9 @@ import { useEtiquetas, useGuardarTarea } from "@/lib/hooks";
 import type { Prioridad, Tarea } from "@/lib/types";
 import { NOMBRES_DE_PRIORIDAD, PRIORIDADES } from "./prioridad";
 import { TagInput } from "./tag-input";
-import { Alerta, CAMPO, Spinner, boton } from "./ui";
+import { Alerta, CAMPO, CAMPO_CAJA, Spinner, boton } from "./ui";
+
+const ETIQUETA_DE_CAMPO = "mb-0.5 block font-display text-[1.1rem] font-semibold text-tinta-suave";
 
 /** Formulario de creación y edición. Se monta de nuevo cada vez que se abre, así empieza limpio. */
 export function TaskForm({
@@ -63,45 +65,43 @@ export function TaskForm({
   }
 
   return (
-    <form onSubmit={enviar} noValidate className="space-y-4">
+    <form onSubmit={enviar} noValidate className="space-y-5">
       <div>
-        <label htmlFor={idTitulo} className="mb-1 block text-sm font-medium">
+        <label htmlFor={idTitulo} className={ETIQUETA_DE_CAMPO}>
           Título
         </label>
         <input
           id={idTitulo}
-          className={CAMPO}
+          className={`${CAMPO} text-[1.15rem]`}
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
           maxLength={150}
           autoFocus
           aria-invalid={Boolean(errores.titulo)}
         />
-        {errores.titulo && (
-          <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errores.titulo}</p>
-        )}
+        {errores.titulo && <p className="mt-1 text-sm text-tinta-roja">{errores.titulo}</p>}
       </div>
 
       <div>
-        <label htmlFor={idDescripcion} className="mb-1 block text-sm font-medium">
-          Descripción <span className="font-normal text-slate-500">(opcional)</span>
+        <label htmlFor={idDescripcion} className={ETIQUETA_DE_CAMPO}>
+          Descripción <span className="font-normal">(opcional)</span>
         </label>
         <textarea
           id={idDescripcion}
-          className={`${CAMPO} min-h-24 resize-y`}
+          className={`${CAMPO_CAJA} min-h-24 resize-y`}
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           maxLength={1000}
           aria-invalid={Boolean(errores.descripcion)}
         />
         {errores.descripcion && (
-          <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errores.descripcion}</p>
+          <p className="mt-1 text-sm text-tinta-roja">{errores.descripcion}</p>
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor={idPrioridad} className="mb-1 block text-sm font-medium">
+          <label htmlFor={idPrioridad} className={ETIQUETA_DE_CAMPO}>
             Prioridad
           </label>
           <select
@@ -118,8 +118,8 @@ export function TaskForm({
           </select>
         </div>
         <div>
-          <label htmlFor={idFecha} className="mb-1 block text-sm font-medium">
-            Fecha límite <span className="font-normal text-slate-500">(opcional)</span>
+          <label htmlFor={idFecha} className={ETIQUETA_DE_CAMPO}>
+            Fecha límite <span className="font-normal">(opcional)</span>
           </label>
           <input
             id={idFecha}
@@ -132,24 +132,22 @@ export function TaskForm({
       </div>
 
       <div>
-        <span className="mb-1 block text-sm font-medium">Etiquetas</span>
+        <span className={ETIQUETA_DE_CAMPO}>Etiquetas</span>
         <TagInput
           valor={etiquetas}
           onChange={setEtiquetas}
           sugerencias={etiquetasDelUsuario.data?.map((etiqueta) => etiqueta.nombre) ?? []}
         />
-        {errores.etiquetas && (
-          <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errores.etiquetas}</p>
-        )}
+        {errores.etiquetas && <p className="mt-1 text-sm text-tinta-roja">{errores.etiquetas}</p>}
       </div>
 
       {errorGeneral && <Alerta>{errorGeneral}</Alerta>}
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2 pt-1">
         <button type="button" onClick={onTerminar} className={boton("secundario")}>
           Cancelar
         </button>
-        <button type="submit" className={boton()} disabled={guardar.isPending}>
+        <button type="submit" className={boton("primario")} disabled={guardar.isPending}>
           {guardar.isPending && <Spinner />}
           {tarea ? "Guardar cambios" : "Crear tarea"}
         </button>

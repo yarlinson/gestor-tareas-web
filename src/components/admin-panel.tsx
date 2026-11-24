@@ -9,17 +9,24 @@ import {
 } from "@/lib/hooks";
 import { Alerta, Spinner, boton } from "./ui";
 
-function Tarjeta({ titulo, valor, destacado = false }: { titulo: string; valor: number; destacado?: boolean }) {
+const TITULO_DE_SECCION =
+  "border-b-4 border-double border-regla-fuerte pb-2 font-display text-2xl font-bold leading-none";
+
+/** Una línea del balance: concepto, línea de puntos y cantidad. Lo atrasado va en rojo y entre paréntesis. */
+function Fila({ concepto, valor, atraso = false }: { concepto: string; valor: number; atraso?: boolean }) {
+  const enRojo = atraso && valor > 0;
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-      <p className="text-sm text-slate-500">{titulo}</p>
-      <p
-        className={`mt-1 text-3xl font-semibold tabular-nums ${
-          destacado && valor > 0 ? "text-rose-600 dark:text-rose-400" : ""
-        }`}
+    <div className="flex items-baseline py-1.5">
+      <dt className="font-display text-[1.3rem] font-semibold">{concepto}</dt>
+      <span
+        aria-hidden="true"
+        className="mx-2 min-w-4 flex-1 -translate-y-[0.3em] border-b border-dotted border-regla-fuerte"
+      />
+      <dd
+        className={`font-display text-[1.6rem] font-bold tabular-nums ${enRojo ? "text-tinta-roja" : ""}`}
       >
-        {valor}
-      </p>
+        {enRojo ? `(${valor})` : valor}
+      </dd>
     </div>
   );
 }
@@ -31,53 +38,57 @@ export function AdminPanel() {
   const recordatorios = useGenerarRecordatorios();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <div>
-        <h1 className="text-xl font-semibold">Administración</h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Totales de toda la aplicación y usuarios registrados.
-        </p>
+        <h1 className="font-display text-[2.8rem] font-bold leading-none">Administración</h1>
+        <p className="mt-2 text-tinta-suave">Totales de toda la aplicación y usuarios registrados.</p>
       </div>
 
-      <section aria-label="Estadísticas">
+      <section aria-labelledby="titulo-balance" className="max-w-xl">
+        <h2 id="titulo-balance" className={TITULO_DE_SECCION}>
+          Balance
+        </h2>
         {estadisticas.isPending && (
-          <div className="flex justify-center py-8 text-slate-500">
+          <div className="flex justify-center py-8 text-tinta-suave">
             <Spinner className="h-5 w-5" />
           </div>
         )}
-        {estadisticas.isError && <Alerta>{estadisticas.error.message}</Alerta>}
-        {estadisticas.data && (
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <Tarjeta titulo="Usuarios" valor={estadisticas.data.totalUsuarios} />
-            <Tarjeta titulo="Tareas" valor={estadisticas.data.totalTareas} />
-            <Tarjeta titulo="Completadas" valor={estadisticas.data.tareasCompletadas} />
-            <Tarjeta titulo="Pendientes" valor={estadisticas.data.tareasPendientes} />
-            <Tarjeta titulo="Vencidas" valor={estadisticas.data.tareasVencidas} destacado />
+        {estadisticas.isError && (
+          <div className="mt-3">
+            <Alerta>{estadisticas.error.message}</Alerta>
           </div>
+        )}
+        {estadisticas.data && (
+          <dl className="mt-2">
+            <Fila concepto="Usuarios" valor={estadisticas.data.totalUsuarios} />
+            <Fila concepto="Tareas" valor={estadisticas.data.totalTareas} />
+            <Fila concepto="Hechas" valor={estadisticas.data.tareasCompletadas} />
+            <Fila concepto="Pendientes" valor={estadisticas.data.tareasPendientes} />
+            <Fila concepto="Vencidas" valor={estadisticas.data.tareasVencidas} atraso />
+          </dl>
         )}
       </section>
 
-      <section
-        aria-labelledby="titulo-recordatorios"
-        className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
-      >
-        <h2 id="titulo-recordatorios" className="font-semibold">
+      <section aria-labelledby="titulo-recordatorios" className="max-w-xl">
+        <h2 id="titulo-recordatorios" className={TITULO_DE_SECCION}>
           Recordatorios
         </h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-3 text-tinta-suave">
           Los avisos de tareas por vencer y vencidas se generan cada hora y al arrancar el servidor.
-          Puedes ejecutarlos ahora; no se repiten avisos que ya existen.
+          Puedes ejecutarlos ahora; no se repiten los avisos que ya existen.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => recordatorios.mutate()}
             disabled={recordatorios.isPending}
-            className={boton()}
+            className={boton("primario")}
           >
             {recordatorios.isPending && <Spinner />}
             Generar recordatorios ahora
           </button>
+        </div>
+        <div className="mt-3">
           {recordatorios.data && (
             <Alerta tipo="exito">
               Listo: {recordatorios.data.porVencer} avisos de tareas por vencer y{" "}
@@ -89,46 +100,50 @@ export function AdminPanel() {
       </section>
 
       <section aria-labelledby="titulo-usuarios">
-        <h2 id="titulo-usuarios" className="mb-3 font-semibold">
+        <h2 id="titulo-usuarios" className={TITULO_DE_SECCION}>
           Usuarios
         </h2>
         {usuarios.isPending && (
-          <div className="flex justify-center py-8 text-slate-500">
+          <div className="flex justify-center py-8 text-tinta-suave">
             <Spinner className="h-5 w-5" />
           </div>
         )}
-        {usuarios.isError && <Alerta>{usuarios.error.message}</Alerta>}
+        {usuarios.isError && (
+          <div className="mt-3">
+            <Alerta>{usuarios.error.message}</Alerta>
+          </div>
+        )}
         {usuarios.data && (
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+          <>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-800/50">
-                  <tr>
-                    <th scope="col" className="px-4 py-3 font-medium">Usuario</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Correo</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Rol</th>
-                    <th scope="col" className="px-4 py-3 text-right font-medium">Tareas</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Registro</th>
+              <table className="mt-2 w-full min-w-[34rem] text-left">
+                <thead>
+                  <tr className="border-b-2 border-regla-fuerte font-display text-[1.1rem] font-semibold text-tinta-suave">
+                    <th scope="col" className="py-2 pr-4">Usuario</th>
+                    <th scope="col" className="py-2 pr-4">Correo</th>
+                    <th scope="col" className="py-2 pr-4">Rol</th>
+                    <th scope="col" className="py-2 pr-4 text-right">Tareas</th>
+                    <th scope="col" className="py-2">Registro</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody>
                   {usuarios.data.contenido.map((usuario) => (
-                    <tr key={usuario.id}>
-                      <td className="px-4 py-3 font-medium">{usuario.nombreUsuario}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{usuario.email}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                            usuario.rol === "ADMIN"
-                              ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                          }`}
-                        >
-                          {usuario.rol === "ADMIN" ? "Administrador" : "Usuario"}
-                        </span>
+                    <tr key={usuario.id} className="border-b border-regla">
+                      <td className="py-2.5 pr-4 font-semibold">{usuario.nombreUsuario}</td>
+                      <td className="py-2.5 pr-4 text-tinta-suave">{usuario.email}</td>
+                      <td className="py-2.5 pr-4">
+                        {usuario.rol === "ADMIN" ? (
+                          <span className="font-display text-[1.1rem] font-bold text-tinta-azul">
+                            Administrador
+                          </span>
+                        ) : (
+                          <span className="text-tinta-suave">Usuario</span>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums">{usuario.totalTareas}</td>
-                      <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-400">
+                      <td className="py-2.5 pr-4 text-right font-display text-[1.2rem] font-semibold tabular-nums">
+                        {usuario.totalTareas}
+                      </td>
+                      <td className="whitespace-nowrap py-2.5 text-[0.95rem] text-tinta-suave">
                         {formatearFechaYHora(usuario.creadoEn)}
                       </td>
                     </tr>
@@ -136,33 +151,37 @@ export function AdminPanel() {
                 </tbody>
               </table>
             </div>
-            {usuarios.data.totalPaginas > 1 && (
-              <nav
-                aria-label="Paginación de usuarios"
-                className="flex items-center justify-between border-t border-slate-200 px-4 py-3 dark:border-slate-800"
-              >
-                <button
-                  type="button"
-                  className={boton("secundario")}
-                  disabled={pagina === 0}
-                  onClick={() => setPagina((actual) => actual - 1)}
-                >
-                  Anterior
-                </button>
-                <span className="text-sm text-slate-500">
-                  Página {usuarios.data.pagina + 1} de {usuarios.data.totalPaginas}
-                </span>
-                <button
-                  type="button"
-                  className={boton("secundario")}
-                  disabled={pagina + 1 >= usuarios.data.totalPaginas}
-                  onClick={() => setPagina((actual) => actual + 1)}
-                >
-                  Siguiente
-                </button>
-              </nav>
-            )}
-          </div>
+            <div className="regla-doble flex flex-wrap items-center justify-between gap-3 pt-3 font-display text-[1.2rem] font-semibold">
+              <p>
+                {usuarios.data.totalElementos === 1
+                  ? "1 usuario"
+                  : `${usuarios.data.totalElementos} usuarios`}
+              </p>
+              {usuarios.data.totalPaginas > 1 && (
+                <nav aria-label="Paginación de usuarios" className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className={`${boton("fantasma")} boton-pequeno`}
+                    disabled={pagina === 0}
+                    onClick={() => setPagina((actual) => actual - 1)}
+                  >
+                    Anterior
+                  </button>
+                  <span className="font-medium tabular-nums text-tinta-suave">
+                    Página {usuarios.data.pagina + 1} de {usuarios.data.totalPaginas}
+                  </span>
+                  <button
+                    type="button"
+                    className={`${boton("fantasma")} boton-pequeno`}
+                    disabled={pagina + 1 >= usuarios.data.totalPaginas}
+                    onClick={() => setPagina((actual) => actual + 1)}
+                  >
+                    Siguiente
+                  </button>
+                </nav>
+              )}
+            </div>
+          </>
         )}
       </section>
     </div>

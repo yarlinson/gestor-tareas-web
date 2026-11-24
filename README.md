@@ -66,6 +66,19 @@ La aplicación queda en <http://localhost:3000>. Por defecto apunta a `http://lo
 - **Modal con `<dialog>` nativo.** El navegador se ocupa de atrapar el foco, cerrar con Escape y bloquear el fondo, sin dependencias.
 - **Arranque en frío.** Al abrir la pantalla de acceso se envía un `fetch` silencioso a `/actuator/health` para despertar la API, y si el inicio de sesión tarda más de 6 segundos se explica por qué.
 
+## Identidad visual
+
+La interfaz imita una **hoja de contabilidad** (el libro contable de papel verde claro). En una lista de tareas lo que decide es el plazo, y un libro contable ya tiene un lenguaje para leer cantidades, saldos y totales.
+
+- **El plazo es el protagonista.** Cada fila empieza con los días que faltan en números grandes. Lo atrasado se escribe en rojo y entre paréntesis, como un saldo negativo: `(4)`. La administración sigue la misma idea: un balance con conceptos unidos por puntos a su cantidad.
+- **Filas con reglas, no tarjetas.** Columnas (plazo, tarea, prioridad), líneas finas entre filas y doble raya en los totales. Las etiquetas se listan con una línea de puntos hacia su cantidad, como en el índice de un libro.
+- **Dos tintas de bolígrafo.** El rojo es solo para el atraso; el azul, para lo hecho, los enlaces y el foco. Al completar una tarea, una línea azul tacha el título: es la única animación y responde a una acción (se respeta `prefers-reduced-motion`).
+- **La prioridad se lee por la forma, no por el color:** tres barras de altura creciente y la palabra. Se entiende sin distinguir colores y deja el rojo libre para el atraso.
+- **Tipografía.** Source Serif 4 para el contenido y Barlow Condensed para columnas, botones y números, con cifras tabulares.
+- **Modo claro y oscuro** ("tinta nocturna") con las mismas tintas aclaradas. Los contrastes de texto se calcularon: el peor caso es 5,75:1 en claro y 7,47:1 en oscuro (el mínimo es 4,5:1), y la línea de los campos llega a 3,07:1 (el mínimo para bordes de controles es 3:1).
+
+Los colores y los estilos comunes están en [`src/app/globals.css`](src/app/globals.css) como variables CSS, así que cambiar la paleta es tocar un solo bloque.
+
 ## Estructura
 
 ```

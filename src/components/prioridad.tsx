@@ -8,19 +8,28 @@ export const NOMBRES_DE_PRIORIDAD: Record<Prioridad, string> = {
 
 export const PRIORIDADES: Prioridad[] = ["ALTA", "MEDIA", "BAJA"];
 
-const COLORES: Record<Prioridad, string> = {
-  ALTA: "bg-rose-100 text-rose-700 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:ring-rose-500/30",
-  MEDIA:
-    "bg-amber-100 text-amber-800 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-500/30",
-  BAJA: "bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-500/15 dark:text-slate-300 dark:ring-slate-500/30",
-};
+const NIVELES: Record<Prioridad, number> = { BAJA: 1, MEDIA: 2, ALTA: 3 };
 
-export function InsigniaDePrioridad({ prioridad }: { prioridad: Prioridad }) {
+/**
+ * La prioridad se lee por la forma, no por el color: tres barras de altura creciente, tantas
+ * llenas como el nivel, y la palabra al lado. Así se entiende también sin distinguir colores,
+ * y el rojo queda reservado para lo que está atrasado.
+ */
+export function NivelDePrioridad({ prioridad }: { prioridad: Prioridad }) {
+  const nivel = NIVELES[prioridad];
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${COLORES[prioridad]}`}
-    >
-      Prioridad {NOMBRES_DE_PRIORIDAD[prioridad].toLowerCase()}
+    <span className="inline-flex items-center gap-2 font-display text-[1.1rem] font-semibold">
+      <span aria-hidden="true" className="flex h-4 items-end gap-[3px]">
+        {[1, 2, 3].map((barra) => (
+          <span
+            key={barra}
+            className={`w-[4px] ${barra <= nivel ? "bg-tinta" : "bg-regla"}`}
+            style={{ height: `${barra * 33}%` }}
+          />
+        ))}
+      </span>
+      <span className="sr-only">Prioridad </span>
+      {NOMBRES_DE_PRIORIDAD[prioridad]}
     </span>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { Marca } from "./marca";
 import { NotificationBell } from "./notification-bell";
 import { boton } from "./ui";
 
@@ -16,45 +17,48 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M5 12.5 10 17.5 19 7.5" />
-            </svg>
-          </span>
-          <span className="hidden sm:inline">Gestor de Tareas</span>
+    <header className="sticky top-0 z-20 border-b-4 border-double border-regla-fuerte bg-papel">
+      <div className="mx-auto flex min-h-16 w-full max-w-5xl flex-wrap items-center gap-x-7 gap-y-1 px-4 py-2 sm:px-6">
+        <Link href="/" className="flex items-center gap-2.5">
+          <Marca />
+          <span className="font-display text-[1.75rem] font-bold leading-none">Gestor de Tareas</span>
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm" aria-label="Principal">
-          {enlaces.map((enlace) => (
-            <Link
-              key={enlace.href}
-              href={enlace.href}
-              aria-current={ruta === enlace.href ? "page" : undefined}
-              className={`rounded-md px-3 py-1.5 font-medium transition ${
-                ruta === enlace.href
-                  ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
-                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              }`}
-            >
-              {enlace.texto}
-            </Link>
-          ))}
+        <nav aria-label="Principal" className="flex gap-5 font-display text-[1.25rem] font-semibold">
+          {enlaces.map((enlace) => {
+            const activo = ruta === enlace.href;
+            return (
+              <Link
+                key={enlace.href}
+                href={enlace.href}
+                aria-current={activo ? "page" : undefined}
+                className={`border-b-2 pb-0.5 transition-colors ${
+                  activo
+                    ? "border-tinta"
+                    : "border-transparent text-tinta-suave hover:text-tinta"
+                }`}
+              >
+                {enlace.texto}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-3">
           <NotificationBell />
-          <span className="hidden text-sm text-slate-600 md:inline dark:text-slate-300">
+          <span className="hidden font-display text-[1.2rem] font-semibold md:inline">
             {perfil?.nombreUsuario}
             {perfil?.rol === "ADMIN" && (
-              <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+              <span className="ml-2 border border-regla-fuerte px-1.5 text-base font-medium text-tinta-suave">
                 Admin
               </span>
             )}
           </span>
-          <button type="button" onClick={cerrarSesion} className={boton("secundario")}>
+          <button
+            type="button"
+            onClick={cerrarSesion}
+            className={`${boton("secundario")} boton-pequeno`}
+          >
             Salir
           </button>
         </div>

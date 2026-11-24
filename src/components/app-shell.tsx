@@ -8,7 +8,7 @@ import { Spinner } from "./ui";
 
 function PantallaDeCarga() {
   return (
-    <div className="flex min-h-screen items-center justify-center text-slate-500">
+    <div className="flex min-h-screen items-center justify-center text-tinta-suave">
       <Spinner className="h-6 w-6" />
       <span className="sr-only">Cargando…</span>
     </div>
@@ -38,11 +38,9 @@ export function AppShell({
       contenido = <PantallaDeCarga />;
     } else if (perfil?.rol !== "ADMIN") {
       contenido = (
-        <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900">
-          <h1 className="text-lg font-semibold">Solo para administradores</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Tu cuenta no tiene permiso para ver esta página.
-          </p>
+        <div className="mx-auto max-w-md border-[1.5px] border-tinta bg-hoja p-8 text-center shadow-[6px_6px_0_0_var(--regla-fuerte)]">
+          <h1 className="font-display text-3xl font-bold leading-none">Solo para administradores</h1>
+          <p className="mt-3 text-tinta-suave">Tu cuenta no tiene permiso para ver esta página.</p>
         </div>
       );
     }
@@ -51,9 +49,9 @@ export function AppShell({
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">{contenido}</main>
-      <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500 dark:border-slate-800">
-        Gestor de Tareas · Next.js sobre una API REST en Spring Boot
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">{contenido}</main>
+      <footer className="border-t border-regla py-4 text-center text-[0.9rem] text-tinta-suave">
+        Gestor de Tareas, un cliente web en Next.js sobre una API REST en Spring Boot
       </footer>
     </div>
   );

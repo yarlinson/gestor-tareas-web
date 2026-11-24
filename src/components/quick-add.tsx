@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { useGuardarTarea } from "@/lib/hooks";
-import { CAMPO_AUTO, Spinner, boton } from "./ui";
+import { CAMPO, Spinner, boton } from "./ui";
 
-/** Barra para crear una tarea solo con su título; "Más opciones" abre el formulario completo. */
+/** La primera línea de la hoja: se escribe el título y Enter. "Más opciones" abre el formulario completo. */
 export function QuickAdd({ onMasOpciones }: { onMasOpciones: () => void }) {
   const guardar = useGuardarTarea();
   const [titulo, setTitulo] = useState("");
+  const idDelCampo = useId();
 
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -22,28 +23,37 @@ export function QuickAdd({ onMasOpciones }: { onMasOpciones: () => void }) {
   }
 
   return (
-    <form onSubmit={enviar} aria-label="Agregar una tarea rápida">
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <input
-          className={`${CAMPO_AUTO} min-w-0 flex-1`}
-          value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-          maxLength={150}
-          placeholder="Agrega una tarea y pulsa Enter…"
-          aria-label="Título de la nueva tarea"
-        />
+    <form onSubmit={enviar}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="min-w-0 flex-1">
+          <label htmlFor={idDelCampo} className="sr-only">
+            Título de la nueva tarea
+          </label>
+          <input
+            id={idDelCampo}
+            className={`${CAMPO} text-[1.2rem]`}
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            maxLength={150}
+            placeholder="Escribe una tarea y pulsa Enter"
+          />
+        </div>
         <div className="flex gap-2">
-          <button type="submit" className={`${boton()} flex-1 sm:flex-none`} disabled={guardar.isPending || !titulo.trim()}>
+          <button
+            type="submit"
+            className={boton("primario")}
+            disabled={guardar.isPending || !titulo.trim()}
+          >
             {guardar.isPending && <Spinner />}
             Agregar
           </button>
-          <button type="button" onClick={onMasOpciones} className={`${boton("secundario")} flex-1 sm:flex-none`}>
+          <button type="button" onClick={onMasOpciones} className={boton("secundario")}>
             Más opciones
           </button>
         </div>
       </div>
       {guardar.error && (
-        <p role="alert" className="mt-2 text-sm text-rose-600 dark:text-rose-400">
+        <p role="alert" className="mt-2 text-sm text-tinta-roja">
           {guardar.error.message}
         </p>
       )}
