@@ -7,22 +7,37 @@ interface PropiedadesVisuales {
   detalle?: string;
   /** Plazo vencido: se escribe en tinta roja, como lo negativo en contabilidad. */
   atraso?: boolean;
+  /** Versión pequeña para listas apretadas: sin la fecha y con cifras más chicas. */
+  compacto?: boolean;
 }
 
 /** La columna de plazo: un número grande y, debajo, qué significa. Es solo presentación. */
-export function PlazoVisual({ numero, etiqueta, detalle, atraso = false }: PropiedadesVisuales) {
+export function PlazoVisual({
+  numero,
+  etiqueta,
+  detalle,
+  atraso = false,
+  compacto = false,
+}: PropiedadesVisuales) {
+  // "(12)" y palabras como "Hoy" son más anchos que una cifra: se achican para no salirse.
+  const ancho = numero.length > 2;
+  const tamano = compacto
+    ? ancho ? "text-[1.35rem]" : "text-[1.75rem]"
+    : ancho ? "text-[2.1rem]" : "text-[2.7rem]";
+
   return (
     <div aria-hidden="true" className="font-display leading-none">
-      <div
-        className={`font-bold tabular-nums ${
-          // "(12)" y palabras como "Hoy" son más anchos que una cifra: se achican para no salirse.
-          numero.length > 2 ? "text-[2.1rem]" : "text-[2.7rem]"
-        } ${atraso ? "text-tinta-roja" : ""}`}
-      >
+      <div className={`font-bold tabular-nums ${tamano} ${atraso ? "text-tinta-roja" : ""}`}>
         {numero}
       </div>
-      <div className="mt-1.5 text-[1.05rem] font-medium text-tinta-suave">{etiqueta}</div>
-      {detalle && <div className="mt-0.5 text-base text-tinta-suave">{detalle}</div>}
+      <div
+        className={`font-medium text-tinta-suave ${
+          compacto ? "mt-1 text-[0.95rem]" : "mt-1.5 text-[1.05rem]"
+        }`}
+      >
+        {etiqueta}
+      </div>
+      {detalle && !compacto && <div className="mt-0.5 text-base text-tinta-suave">{detalle}</div>}
     </div>
   );
 }
@@ -39,6 +54,7 @@ interface Propiedades {
   completada: boolean;
   /** Fecha de hoy (AAAA-MM-DD); vacía mientras se hidrata la página. */
   hoy: string;
+  compacto?: boolean;
 }
 
 /**
@@ -46,13 +62,14 @@ interface Propiedades {
  * atraso, como se escribe un saldo negativo en un libro contable. Las tareas hechas muestran una
  * marca azul. Para quien usa lector de pantalla se dice la frase completa.
  */
-export function Plazo({ fecha, completada, hoy }: Propiedades) {
+export function Plazo({ fecha, completada, hoy, compacto = false }: Propiedades) {
   if (completada) {
+    const lado = compacto ? "h-[1.75rem] w-[1.75rem]" : "h-[2.5rem] w-[2.5rem]";
     return (
       <div className="font-display leading-none">
         <svg
           viewBox="0 0 24 24"
-          className="h-[2.5rem] w-[2.5rem] fill-none stroke-tinta-azul"
+          className={`${lado} fill-none stroke-tinta-azul`}
           strokeWidth="2.6"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -60,7 +77,12 @@ export function Plazo({ fecha, completada, hoy }: Propiedades) {
         >
           <path d="M3.5 13.5 9 19 21 4.5" />
         </svg>
-        <div aria-hidden="true" className="mt-1.5 text-[1.05rem] font-medium text-tinta-azul">
+        <div
+          aria-hidden="true"
+          className={`font-medium text-tinta-azul ${
+            compacto ? "mt-1 text-[0.95rem]" : "mt-1.5 text-[1.05rem]"
+          }`}
+        >
           hecha
         </div>
         <span className="sr-only">Tarea completada</span>
@@ -71,14 +93,14 @@ export function Plazo({ fecha, completada, hoy }: Propiedades) {
   if (!fecha) {
     return (
       <>
-        <PlazoVisual numero="—" etiqueta="sin plazo" />
+        <PlazoVisual numero="—" etiqueta="sin plazo" compacto={compacto} />
         <span className="sr-only">Sin fecha límite</span>
       </>
     );
   }
 
   if (!hoy) {
-    return <PlazoVisual numero="…" etiqueta={formatearDiaYMes(fecha)} />;
+    return <PlazoVisual numero="…" etiqueta={formatearDiaYMes(fecha)} compacto={compacto} />;
   }
 
   const dias = diasHasta(fecha, hoy);
@@ -92,6 +114,7 @@ export function Plazo({ fecha, completada, hoy }: Propiedades) {
         etiqueta={etiqueta}
         detalle={formatearDiaYMes(fecha)}
         atraso={dias < 0}
+        compacto={compacto}
       />
       <span className="sr-only">
         Vence el {formatearFecha(fecha)}: {frase(dias)}

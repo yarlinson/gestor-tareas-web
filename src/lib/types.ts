@@ -2,6 +2,9 @@
 
 export type Prioridad = "BAJA" | "MEDIA" | "ALTA";
 export type Rol = "USER" | "ADMIN";
+
+/** Importancia numérica de cada prioridad (mayor = más importante), para ordenar y dibujar. */
+export const NIVEL_DE_PRIORIDAD: Record<Prioridad, number> = { BAJA: 1, MEDIA: 2, ALTA: 3 };
 export type TipoNotificacion = "POR_VENCER" | "VENCIDA";
 
 export interface Tarea {
@@ -83,6 +86,20 @@ export interface Estadisticas {
 export interface ResultadoRecordatorios {
   porVencer: number;
   vencidas: number;
+}
+
+/** Totales de las tareas del usuario (GET /api/tareas/resumen). */
+export interface ResumenTareas {
+  total: number;
+  pendientes: number;
+  hechas: number;
+  vencidas: number;
+  paraHoy: number;
+  proximosSieteDias: number;
+  sinPlazo: number;
+  pendientesAlta: number;
+  pendientesMedia: number;
+  pendientesBaja: number;
 }
 
 export type Estado = "todas" | "pendientes" | "completadas";

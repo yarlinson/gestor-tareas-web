@@ -11,6 +11,14 @@ const formatoDeDiaYMes = new Intl.DateTimeFormat("es-CO", {
   timeZone: "UTC",
 });
 
+const formatoDeFechaLarga = new Intl.DateTimeFormat("es-CO", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 const formatoDeFechaYHora = new Intl.DateTimeFormat("es-CO", {
   dateStyle: "medium",
   timeStyle: "short",
@@ -26,6 +34,16 @@ export function formatearDiaYMes(fecha: string): string {
   return formatoDeDiaYMes.format(new Date(`${fecha}T00:00:00Z`));
 }
 
+/** "2030-01-31" -> "jueves, 31 de enero de 2030". */
+export function formatearFechaLarga(fecha: string): string {
+  return formatoDeFechaLarga.format(new Date(`${fecha}T00:00:00Z`));
+}
+
 export function formatearFechaYHora(instante: string): string {
   return formatoDeFechaYHora.format(new Date(instante));
+}
+
+/** Pone en mayúscula solo la primera letra ("noviembre de 2026" -> "Noviembre de 2026"). */
+export function capitalizar(texto: string): string {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }

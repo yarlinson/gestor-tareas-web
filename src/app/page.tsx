@@ -1,10 +1,10 @@
 import { AppShell } from "@/components/app-shell";
-import { TaskBoard } from "@/components/task-board";
+import { Dashboard } from "@/components/dashboard";
 
 export default function Home() {
   return (
     <AppShell>
-      <TaskBoard />
+      <Dashboard />
     </AppShell>
   );
 }

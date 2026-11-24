@@ -14,11 +14,28 @@
   --tinta-suave: #4a6252; /* texto secundario: 5,7:1 sobre el papel */
   --tinta-roja: #b3261e;
   --tinta-azul: #2748a0;
+  color-scheme: light;
 }
 
-/* "Tinta nocturna": el mismo libro a la luz de una lámpara. */
+/*
+ * "Tinta nocturna": el mismo libro a la luz de una lámpara. Se activa con el botón del
+ * encabezado (data-tema="oscuro") y, si la persona aún no ha elegido, según el sistema.
+ * El atributo lo pone un script mínimo antes de pintar la página (ver layout.tsx).
+ */
+:root[data-tema="oscuro"] {
+  --papel: #0e1812;
+  --hoja: #14221a;
+  --regla: #2a4033;
+  --regla-fuerte: #5f8a70;
+  --tinta: #dde9db;
+  --tinta-suave: #9fb8a6;
+  --tinta-roja: #ff8f84;
+  --tinta-azul: #94b3ff;
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema]) {
     --papel: #0e1812;
     --hoja: #14221a;
     --regla: #2a4033;
@@ -27,6 +44,7 @@
     --tinta-suave: #9fb8a6;
     --tinta-roja: #ff8f84;
     --tinta-azul: #94b3ff;
+    color-scheme: dark;
   }
 }
 
@@ -43,10 +61,6 @@
 }
 
 @layer base {
-  html {
-    color-scheme: light dark;
-  }
-
   body {
     background: var(--papel);
     color: var(--tinta);
@@ -82,10 +96,8 @@
   dialog::backdrop {
     background: rgb(21 38 28 / 0.5);
   }
-  @media (prefers-color-scheme: dark) {
-    dialog::backdrop {
-      background: rgb(0 0 0 / 0.65);
-    }
+  :root[data-tema="oscuro"] dialog::backdrop {
+    background: rgb(0 0 0 / 0.65);
   }
 }
 

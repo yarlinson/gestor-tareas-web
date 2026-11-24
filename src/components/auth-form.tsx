@@ -7,6 +7,7 @@ import { sesion } from "@/lib/session";
 import { Marca } from "./marca";
 import { PlazoVisual } from "./plazo";
 import { NivelDePrioridad } from "./prioridad";
+import { ThemeToggle } from "./theme-toggle";
 import { Alerta, CAMPO, Spinner, boton } from "./ui";
 
 type Modo = "entrar" | "crear";
@@ -103,7 +104,8 @@ export function AuthForm() {
   }
 
   return (
-    <div className="fondo-rayado min-h-screen">
+    <div className="fondo-rayado relative min-h-screen">
+      <ThemeToggle className="absolute right-4 top-4 bg-papel" />
       <div className="mx-auto grid min-h-screen max-w-5xl items-center gap-x-16 gap-y-10 px-6 py-12 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <div>
           <Marca className="h-12 w-12" />

@@ -13,9 +13,12 @@ const ETIQUETA_DE_CAMPO = "mb-0.5 block font-display text-[1.1rem] font-semibold
 /** Formulario de creación y edición. Se monta de nuevo cada vez que se abre, así empieza limpio. */
 export function TaskForm({
   tarea,
+  fechaInicial,
   onTerminar,
 }: {
   tarea?: Tarea;
+  /** Fecha límite con la que empieza una tarea nueva (por ejemplo, el día que se tocó en el calendario). */
+  fechaInicial?: string;
   onTerminar: () => void;
 }) {
   const guardar = useGuardarTarea();
@@ -28,7 +31,7 @@ export function TaskForm({
   const [titulo, setTitulo] = useState(tarea?.titulo ?? "");
   const [descripcion, setDescripcion] = useState(tarea?.descripcion ?? "");
   const [prioridad, setPrioridad] = useState<Prioridad>(tarea?.prioridad ?? "MEDIA");
-  const [fechaLimite, setFechaLimite] = useState(tarea?.fechaLimite ?? "");
+  const [fechaLimite, setFechaLimite] = useState(tarea?.fechaLimite ?? fechaInicial ?? "");
   const [etiquetas, setEtiquetas] = useState<string[]>(tarea?.etiquetas ?? []);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);

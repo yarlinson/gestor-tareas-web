@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { api } from "./api";
-import type { FiltrosTareas, TareaEntrada } from "./types";
+import type { FiltrosTareas, Tarea, TareaEntrada } from "./types";
 
 /** Vuelve a pedir los datos de las consultas indicadas (por la primera parte de su clave). */
 function useRefrescar() {
@@ -23,6 +23,55 @@ export function useTareas(filtros: FiltrosTareas) {
     queryKey: ["tareas", filtros],
     queryFn: () => api.tareas(filtros),
     // Mientras llega la página nueva se sigue mostrando la anterior, sin parpadeos.
+    placeholderData: keepPreviousData,
+  });
+}
+
+// Todas las consultas de tareas empiezan su clave por "tareas": así, al crear, editar o borrar
+// una tarea, `refrescar("tareas")` actualiza a la vez el listado, el resumen y el calendario.
+
+export function useResumen() {
+  return useQuery({ queryKey: ["tareas", "resumen"], queryFn: api.resumen });
+}
+
+export function useTareasProximas(hoy: string) {
+  return useQuery({
+    queryKey: ["tareas", "proximas", hoy],
+    queryFn: () => api.tareasProximas(hoy),
+    enabled: hoy !== "",
+  });
+}
+
+export function useTareasAtrasadas() {
+  return useQuery({ queryKey: ["tareas", "atrasadas"], queryFn: api.tareasAtrasadas });
+}
+
+export function useTareasSinFecha() {
+  return useQuery({ queryKey: ["tareas", "sin-fecha"], queryFn: api.tareasSinFecha });
+}
+
+/**
+ * Todas las tareas con fecha límite entre `desde` y `hasta` (AAAA-MM-DD, ambos incluidos). La
+ * API pagina de a 100, así que se piden páginas hasta agotarlas: un calendario tiene que mostrar
+ * todas, no solo las primeras.
+ */
+export function useTareasDelRango(desde: string, hasta: string) {
+  return useQuery({
+    queryKey: ["tareas", "rango", desde, hasta],
+    queryFn: async () => {
+      const todas: Tarea[] = [];
+      let pagina = 0;
+      let totalPaginas = 1;
+      while (pagina < totalPaginas) {
+        const respuesta = await api.tareasEnRango(desde, hasta, pagina);
+        todas.push(...respuesta.contenido);
+        totalPaginas = respuesta.totalPaginas;
+        pagina += 1;
+      }
+      return todas;
+    },
+    enabled: desde !== "" && hasta !== "",
+    // Al cambiar de mes se sigue viendo el anterior hasta que llega el nuevo.
     placeholderData: keepPreviousData,
   });
 }

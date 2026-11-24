@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Marca } from "./marca";
 import { NotificationBell } from "./notification-bell";
+import { ThemeToggle } from "./theme-toggle";
 import { boton } from "./ui";
 
 export function Header() {
@@ -12,7 +13,9 @@ export function Header() {
   const ruta = usePathname();
 
   const enlaces = [
-    { href: "/", texto: "Tareas" },
+    { href: "/", texto: "Resumen" },
+    { href: "/tareas", texto: "Tareas" },
+    { href: "/calendario", texto: "Calendario" },
     ...(perfil?.rol === "ADMIN" ? [{ href: "/admin", texto: "Administración" }] : []),
   ];
 
@@ -24,7 +27,7 @@ export function Header() {
           <span className="font-display text-[1.75rem] font-bold leading-none">Gestor de Tareas</span>
         </Link>
 
-        <nav aria-label="Principal" className="flex gap-5 font-display text-[1.25rem] font-semibold">
+        <nav aria-label="Principal" className="flex flex-wrap gap-x-5 font-display text-[1.25rem] font-semibold">
           {enlaces.map((enlace) => {
             const activo = ruta === enlace.href;
             return (
@@ -45,8 +48,9 @@ export function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
+          <ThemeToggle />
           <NotificationBell />
-          <span className="hidden font-display text-[1.2rem] font-semibold md:inline">
+          <span className="hidden font-display text-[1.2rem] font-semibold lg:inline">
             {perfil?.nombreUsuario}
             {perfil?.rol === "ADMIN" && (
               <span className="ml-2 border border-regla-fuerte px-1.5 text-base font-medium text-tinta-suave">

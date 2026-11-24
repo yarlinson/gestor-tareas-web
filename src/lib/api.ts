@@ -8,6 +8,7 @@ import type {
   Pagina,
   Perfil,
   ResultadoRecordatorios,
+  ResumenTareas,
   Tarea,
   TareaEntrada,
   TokenRespuesta,
@@ -159,6 +160,36 @@ export const api = {
 
   tareas: (filtros: FiltrosTareas) =>
     solicitar<Pagina<Tarea>>(`/api/tareas?${consultaDeTareas(filtros)}`),
+
+  resumen: () => solicitar<ResumenTareas>("/api/tareas/resumen"),
+
+  /** Una página de las tareas cuya fecha límite cae en el rango (ambos extremos incluidos). */
+  tareasEnRango: (desde: string, hasta: string, pagina: number) => {
+    const parametros = new URLSearchParams({
+      desde,
+      hasta,
+      page: String(pagina),
+      size: "100",
+      sort: "fechaLimite,asc",
+    });
+    return solicitar<Pagina<Tarea>>(`/api/tareas?${parametros}`);
+  },
+
+  /** Pendientes sin fecha límite: no tienen día en el calendario. */
+  tareasSinFecha: () =>
+    solicitar<Pagina<Tarea>>("/api/tareas?sinFecha=true&completada=false&size=50&sort=creadaEn,desc"),
+
+  /** Las pendientes que vencen de hoy en adelante, las más próximas primero. */
+  tareasProximas: (hoy: string) => {
+    const parametros = new URLSearchParams({ completada: "false", desde: hoy, size: "5" });
+    parametros.append("sort", "fechaLimite,asc");
+    parametros.append("sort", "prioridad,desc");
+    return solicitar<Pagina<Tarea>>(`/api/tareas?${parametros}`);
+  },
+
+  /** Las pendientes que ya pasaron su plazo, la más atrasada primero. */
+  tareasAtrasadas: () =>
+    solicitar<Pagina<Tarea>>("/api/tareas?vencidas=true&size=5&sort=fechaLimite,asc"),
 
   crearTarea: (datos: TareaEntrada) =>
     solicitar<Tarea>("/api/tareas", { metodo: "POST", cuerpo: datos }),

@@ -24,12 +24,24 @@ export const metadata: Metadata = {
     "Cliente web del Gestor de Tareas: cada tarea con su plazo, su prioridad y sus etiquetas, sobre una API REST en Spring Boot.",
 };
 
+/**
+ * Fija el tema (claro u oscuro) antes de que el navegador pinte la página, para que quien eligió
+ * el modo contrario al de su sistema no vea un destello del otro. Usa la elección guardada y, si
+ * no hay, la preferencia del sistema. Debe mantenerse en sintonía con src/lib/tema.ts.
+ */
+const GUION_DEL_TEMA = `(function(){try{var g=localStorage.getItem("gestor-tareas.tema");var t=(g==="claro"||g==="oscuro")?g:(window.matchMedia("(prefers-color-scheme: dark)").matches?"oscuro":"claro");document.documentElement.dataset.tema=t}catch(e){}})()`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // suppressHydrationWarning: el guion de arriba añade data-tema a <html> antes de hidratar.
     <html
       lang="es"
+      suppressHydrationWarning
       className={`${textoSerif.variable} ${condensada.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: GUION_DEL_TEMA }} />
+      </head>
       <body className="min-h-full">
         <Providers>{children}</Providers>
       </body>
