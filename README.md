@@ -2,6 +2,7 @@
 
 Cliente web del [Gestor de Tareas](https://github.com/yarlinson/gestor-tareas-java), una API REST hecha con Spring Boot. Permite registrarse, organizar tareas con prioridades y etiquetas, ver avisos de vencimiento y, con rol de administrador, consultar estadísticas y usuarios.
 
+- **Demo en vivo:** <https://gestor-tareas-web-omega.vercel.app>
 - **API desplegada:** <https://gestor-tareas-yv7x.onrender.com> (documentación en Swagger UI)
 - **Repositorio de la API:** <https://github.com/yarlinson/gestor-tareas-java>
 
